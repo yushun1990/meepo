@@ -1,0 +1,7 @@
+[package]
+name = "rule-engine"
+license.workspace = true
+version.workspace = true
+edition.workspace = true
+
+[dependencies]

@@ -1,0 +1,7 @@
+[package]
+name = "cloud-api"
+license.workspace = true
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
