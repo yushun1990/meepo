@@ -1,3 +1,4 @@
+use config::{Environment, File};
 use serde::Deserialize;
 
 #[derive(Debug, Default, Clone, Deserialize)]
@@ -33,7 +34,20 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(location: Option<&str>, env_prefix: &str) -> anyhow::Result<Self> {
-        todo!()
+    pub fn new(location: &str, env_prefix: &str) -> anyhow::Result<Self> {
+        let config = config::Config::builder()
+            .add_source(File::with_name(location))
+            .add_source(
+                Environment::with_prefix(env_prefix)
+                    .separator("_")
+                    .prefix_separator("__"),
+            )
+            .set_override("info.location", location)?
+            .set_override("info.env_prefix", env_prefix)?
+            .build()?;
+
+        let config = config.try_deserialize()?;
+
+        Ok(config)
     }
 }
