@@ -23,7 +23,7 @@ The Meepo platform follows a distributed architecture to optimize edge-cloud col
 -   ****Cloud Layer****: Hosts microservices (e.g., API servers and data storage) to manage device orchestration, data analytics, and user interfaces.
 -   ****Communication****: Utilizes QUIC for edge-to-cloud communication, ensuring high performance and connection migration.
 
-[architecture diagram](https://github.com/yushun1990/meepo/blob/master/resource/design/M-Overall-Archi.png)
+![architecture diagram](https://github.com/yushun1990/meepo/blob/master/resource/design/M-Overall-Archi.png)
 
 ---
 
