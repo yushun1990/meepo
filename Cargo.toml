@@ -17,6 +17,8 @@ version = "0.1.0"
 edition = "2024"
 
 [workspace.dependencies]
+application = { version = "0.1.0", path = "application"}
+
 tokio = {version = "1.46", features = ["full"]}
 tokio-util = "0.7"
 
