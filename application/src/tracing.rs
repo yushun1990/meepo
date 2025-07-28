@@ -1,3 +1,4 @@
+use opentelemetry::trace::TracerProvider;
 use std::{str::FromStr, sync::OnceLock};
 
 use opentelemetry::{
@@ -55,8 +56,8 @@ pub fn setup_tracing(
     tracing: Tracing,
 ) -> anyhow::Result<Option<SdkTracerProvider>> {
     let mut filter_str = "info,opentelemetry=info";
-    if tracing.filter_str.is_some() {
-        filter_str = tracing.filter_str.unwrap().as_str();
+    if let Some(fs) = tracing.filter_str.as_ref() {
+        filter_str = fs;
     }
 
     let filter = EnvFilter::from_str(filter_str)?;
@@ -65,20 +66,20 @@ pub fn setup_tracing(
         .with(filter)
         .with(fmt::Layer::default());
 
-    if !tracing.enable_otlp {
+    if tracing.enable_otlp.is_none() || !tracing.enable_otlp.unwrap() {
         layer.init();
         return Ok(None);
     }
 
-    let tracing_provider: SdkTracerProvider = init_traces(
+    let tracing_provider = init_traces(
         tracing.otlp_endpoint.unwrap().as_str(),
         tracing.otlp_protocol.unwrap().as_str(),
-        get_resource(name, version),
+        get_resource(name.clone(), version),
     )?;
 
     global::set_tracer_provider(tracing_provider.clone());
 
-    let tracer = tracing_provider.tracer(env!("CARGO_PKG_NAME"));
+    let tracer = tracing_provider.tracer(name);
     let otel_layer = OpenTelemetryLayer::new(tracer);
     layer.with(otel_layer).init();
 

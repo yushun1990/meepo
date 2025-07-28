@@ -5,3 +5,9 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+application.workspace = true
+
+anyhow.workspace = true
+
+axum.workspace = true
+tokio.workspace = true

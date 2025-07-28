@@ -3,6 +3,8 @@ use std::net::{IpAddr, SocketAddr};
 use axum::Router;
 use clap::Parser;
 
+use crate::config::Config;
+
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 pub struct Args {
@@ -18,17 +20,37 @@ pub struct Args {
 
 pub struct App {
     pub name: String,
+    pub version: String,
 }
 
 impl App {
-    pub fn new(name: &str) -> Self {
+    pub fn new(name: &str, version: &str) -> Self {
         Self {
             name: name.to_string(),
+            version: version.to_string(),
         }
     }
 
-    pub async fn run(&self, router: Router) {
+    pub async fn run(&self, router: Router) -> anyhow::Result<()> {
         let args = Args::parse();
+
+        let config = Config::new(
+            args.config.as_str(),
+            self.name.clone().to_uppercase().as_str(),
+        )?;
+
+        let tracing_provider = {
+            let provider = crate::tracing::setup_tracing(
+                self.name.clone(),
+                self.version.clone(),
+                config.tracing,
+            );
+            // Startup span to ensure at least on span is generated and exported
+            let span = tracing::info_span!("Meepo!");
+            let _ = span.enter();
+
+            provider
+        };
 
         let addr = SocketAddr::new(args.addr, args.port);
 
@@ -36,5 +58,9 @@ impl App {
             .serve(router.into_make_service())
             .await
             .unwrap();
+
+        println!("Program exit.");
+
+        Ok(())
     }
 }

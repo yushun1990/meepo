@@ -5,14 +5,8 @@ use serde::Deserialize;
 #[allow(unused)]
 pub struct Database {
     pub url: Option<String>,
-    pub max_conns: u32,
-    pub min_conns: u32,
-}
-
-#[derive(Debug, Default, Clone, Deserialize)]
-#[allow(unused)]
-pub struct Logging {
-    pub level: Option<String>,
+    pub max_conns: Option<u32>,
+    pub min_conns: Option<u32>,
 }
 
 #[derive(Debug, Default, Clone, Deserialize)]
@@ -26,7 +20,7 @@ pub struct ConfigInfo {
 #[allow(unused)]
 pub struct Tracing {
     pub filter_str: Option<String>,
-    pub enable_otlp: bool,
+    pub enable_otlp: Option<bool>,
     pub otlp_endpoint: Option<String>,
     pub otlp_protocol: Option<String>,
 }
@@ -37,7 +31,7 @@ pub struct Config {
     #[serde(default)]
     pub database: Database,
     #[serde(default)]
-    pub logging: Logging,
+    pub tracing: Tracing,
 }
 
 impl Config {
