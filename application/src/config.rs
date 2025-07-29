@@ -7,6 +7,9 @@ pub struct Database {
     pub url: Option<String>,
     pub max_conns: Option<u32>,
     pub min_conns: Option<u32>,
+    pub conn_timeout_millis: Option<u64>,
+    pub idle_timeout_millis: Option<u64>,
+    pub enable_logging: Option<bool>,
 }
 
 #[derive(Debug, Default, Clone, Deserialize)]

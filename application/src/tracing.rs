@@ -85,3 +85,8 @@ pub fn setup_tracing(
 
     Ok(Some(tracing_provider))
 }
+
+pub fn shutdown_opentelemetry(tracing_provider: SdkTracerProvider) -> anyhow::Result<()> {
+    tracing_provider.shutdown()?;
+    Ok(())
+}

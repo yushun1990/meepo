@@ -3,7 +3,7 @@ use std::net::{IpAddr, SocketAddr};
 use axum::Router;
 use clap::Parser;
 
-use crate::config::Config;
+use crate::{config::Config, tracing::shutdown_opentelemetry};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -44,13 +44,15 @@ impl App {
                 self.name.clone(),
                 self.version.clone(),
                 config.tracing,
-            );
+            )?;
             // Startup span to ensure at least on span is generated and exported
             let span = tracing::info_span!("Meepo!");
             let _ = span.enter();
 
             provider
         };
+
+        let db = crate::db::setup_database(config.database.clone()).await?;
 
         let addr = SocketAddr::new(args.addr, args.port);
 
@@ -60,6 +62,10 @@ impl App {
             .unwrap();
 
         println!("Program exit.");
+
+        if let Some(tracing_provider) = tracing_provider {
+            shutdown_opentelemetry(tracing_provider)?;
+        }
 
         Ok(())
     }
