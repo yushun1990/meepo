@@ -10,7 +10,7 @@ use opentelemetry_sdk::{Resource, trace::SdkTracerProvider};
 use tracing_opentelemetry::OpenTelemetryLayer;
 use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
-use crate::config::Tracing;
+use super::config::Tracing;
 
 // Initializes a global Resource containing service name and version.
 // Use OnceLock  to ensure the resource is created only once;
@@ -66,7 +66,7 @@ pub fn setup_tracing(
         .with(filter)
         .with(fmt::Layer::default());
 
-    if tracing.enable_otlp.is_none() || !tracing.enable_otlp.unwrap() {
+    if !tracing.enable_otlp {
         layer.init();
         return Ok(None);
     }
