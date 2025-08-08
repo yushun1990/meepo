@@ -1,12 +1,14 @@
+use crate::common;
 use std::net::{IpAddr, SocketAddr};
 
 use axum::Router;
 use clap::Parser;
+use config::{Environment, File};
 use sea_orm::DatabaseConnection;
 
-use crate::{AppState, app_router, common};
+use crate::{AppState, app_router};
 
-#[derive(Parser, Debug, Clone)]
+#[derive(Parser, Clone)]
 #[command(version, about, long_about = None)]
 pub struct Args {
     #[arg(short, long, default_value = "config.toml")]
@@ -17,27 +19,24 @@ pub struct Args {
     pub port: u16,
 }
 
-pub struct App {
+pub struct App<T: common::Config> {
     pub name: String,
     pub version: String,
-    config: common::Config,
-    db: DatabaseConnection,
+    config: T,
     addr: SocketAddr,
 }
 
-impl App {
+impl<T: common::Config> App<T> {
     pub async fn new(name: &str, version: &str) -> anyhow::Result<Self> {
         let args = Args::parse();
         let config =
-            common::Config::new(args.clone().config.as_str(), name.to_uppercase().as_str())?;
-        let db = common::setup_database(config.database.clone()).await?;
+            Self::build_config(args.clone().config.as_str(), name.to_uppercase().as_str()).await?;
         let addr = SocketAddr::new(args.addr, args.port);
 
         Ok(Self {
             name: name.to_string(),
             version: version.to_string(),
             config,
-            db,
             addr,
         })
     }
@@ -74,7 +73,10 @@ impl App {
         Ok(())
     }
 
-    pub fn config(&self) -> common::Config {
+    pub fn config(&self) -> T
+    where
+        T: common::Config,
+    {
         self.config.clone()
     }
 
@@ -84,5 +86,25 @@ impl App {
 
     pub fn addr(&self) -> SocketAddr {
         self.addr.clone()
+    }
+
+    async fn build_config(location: &str, env_prefix: &str) -> anyhow::Result<T>
+    where
+        T: common::Config,
+    {
+        dotenvy::dotenv().ok();
+
+        let config = config::Config::builder()
+            .add_source(File::with_name(location))
+            .add_source(
+                Environment::with_prefix(env_prefix)
+                    .separator("_")
+                    .prefix_separator("__"),
+            )
+            .build()?;
+
+        let config = config.try_deserialize()?;
+
+        Ok(config)
     }
 }

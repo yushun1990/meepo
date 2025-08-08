@@ -37,9 +37,6 @@ pub fn create_router(
         .timeout(Duration::from_secs(timeout_secs))
         .layer(cors);
 
-    // TODO: auth routes
-    //
-
     if enable_swagger {
         tracing::info!("Swagger enabled, close it when deploy to prod.");
     }
