@@ -5,6 +5,8 @@ pub mod common;
 pub mod db;
 pub mod domains;
 
+mod server;
+
 pub use app_state::AppState;
 use mimalloc::MiMalloc;
 
