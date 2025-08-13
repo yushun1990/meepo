@@ -6,3 +6,5 @@ pub struct ServerConfig {
     pub auth_ignore_pathes: Option<Vec<String>>,
     pub enable_api_doc: Option<bool>,
 }
+
+pub trait Server {}

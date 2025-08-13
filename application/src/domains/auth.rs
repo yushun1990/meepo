@@ -9,8 +9,8 @@ mod domain {
     mod service;
 }
 
-mod models {
-    mod login_models;
+mod model {
+    mod userinfo;
 }
 
 mod infra {
